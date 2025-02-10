@@ -2,29 +2,34 @@ import java.util.Random;
 import java.util.Scanner;
 import java.sql.*;
 
-class BankAccount {
+class LoginSection {
 
     static {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:accounts.db");
-             Statement stmt = conn.createStatement()) {
-            String createTableSQL = "CREATE TABLE IF NOT EXISTS accounts ("
-                                  + "account_number TEXT PRIMARY KEY, "
-                                  + "passkey TEXT NOT NULL, "
-                                  + "balance INTEGER NOT NULL, "
-                                  + "created_at TEXT DEFAULT CURRENT_TIMESTAMP"
-                                  + ");";
-            stmt.execute(createTableSQL);
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:accounts.db"); Statement s = connection.createStatement()) {
+            String createTable = "CREATE TABLE IF NOT EXISTS accounts (" +
+                                 "account_number TEXT PRIMARY KEY, " +
+                                 "password TEXT NOT NULL, " +
+                                 "balance INTEGER NOT NULL, " +
+                                 ");";
+
+            s.execute(createTable);
+
         } catch (SQLException e) {
-            System.err.println("Database initialization error: " + e.getMessage());
+            System.err.println("Database creation error: " + e.getMessage());
         }
     }
 
-    static private boolean doesAccountNumberExist(String accountNumber) {
-        String checkSQL = "SELECT account_number FROM accounts WHERE account_number = ?";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:accounts.db");
-             PreparedStatement pstmt = conn.prepareStatement(checkSQL)) {
-            pstmt.setString(1, accountNumber);
-            ResultSet rs = pstmt.executeQuery();
+    public static void displayLoginMenu() {
+        System.out.println("1. Create account");
+        System.out.println("2. Login");
+        System.out.println("3. Delete account");
+    }
+
+    private static boolean doesAccountNumberExist(String accountNumber) {
+        String checkTable = "SELECT account_number FROM accounts WHERE account_number = ?";
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:accounts.db"); PreparedStatement ps = connection.prepareStatement(checkTable)) {
+            ps.setString(1, accountNumber);
+            ResultSet rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException e) {
             System.err.println("Error checking account number existence: " + e.getMessage());
@@ -77,16 +82,9 @@ class BankAccount {
             System.err.println("Error creating account: " + e.getMessage());
         }
     }
+}
 
-    static public void deleteAccount() {
-        System.out.print("Enter your account number: ");
-    }
+    public static void login(String accountID, String password) {}
 
-    static public void depositMoney() {}
-
-    static public void withdrawMoney() {}
-
-    static public void checkBalance() {}
-
-    static public void transferMoney() {}
+    public static void deleteAccount(String accountID, String password) {}
 }
